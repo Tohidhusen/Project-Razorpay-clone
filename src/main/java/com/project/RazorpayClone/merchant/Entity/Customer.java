@@ -1,4 +1,4 @@
-package com.project.RazorpayClone.merchant.entity;
+package com.project.RazorpayClone.merchant.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

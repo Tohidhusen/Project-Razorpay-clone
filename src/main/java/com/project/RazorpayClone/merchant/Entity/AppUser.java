@@ -1,4 +1,4 @@
-package com.project.RazorpayClone.merchant.entity;
+package com.project.RazorpayClone.merchant.Entity;
 
 import com.project.RazorpayClone.common.exception.enums.UserRole;
 import jakarta.persistence.*;
