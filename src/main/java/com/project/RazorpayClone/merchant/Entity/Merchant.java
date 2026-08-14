@@ -1,7 +1,7 @@
 package com.project.RazorpayClone.merchant.Entity;
 
-import com.project.RazorpayClone.common.exception.enums.BusinessType;
-import com.project.RazorpayClone.common.exception.enums.MerchantStatus;
+import com.project.RazorpayClone.common.enums.BusinessType;
+import com.project.RazorpayClone.common.enums.MerchantStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,7 +39,7 @@ public class Merchant {
      @Column(length = 200)
     private String websiteUrl;
 
-     @Column(unique = true,nullable = false)
+     @Column(nullable = false)
      @Enumerated(EnumType.STRING)
     private MerchantStatus status=MerchantStatus.PENDING_KYC;
 

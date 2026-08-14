@@ -1,7 +1,7 @@
 package com.project.RazorpayClone.payment.Entity;
 
-import com.project.RazorpayClone.common.exception.enums.Money;
-import com.project.RazorpayClone.common.exception.enums.OrderStatus;
+import com.project.RazorpayClone.common.enums.Money;
+import com.project.RazorpayClone.common.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

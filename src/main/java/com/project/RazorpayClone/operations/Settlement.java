@@ -1,8 +1,8 @@
 package com.project.RazorpayClone.operations;
 
 
-import com.project.RazorpayClone.common.exception.enums.Money;
-import com.project.RazorpayClone.common.exception.enums.SettlementStatus;
+import com.project.RazorpayClone.common.enums.Money;
+import com.project.RazorpayClone.common.enums.SettlementStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,8 +28,8 @@ public class Settlement {
     @Embedded
     @AttributeOverrides(
             value = {
-                    @AttributeOverride(name = "amountUnit", column = @Column(name = "gross_amount", nullable = false)),
-                    @AttributeOverride(name = "amountValue", column = @Column(name = "gross_amount_value", nullable = false))
+                    @AttributeOverride(name = "amountUnit", column = @Column(name = "gross_amount",nullable = false)),
+                    @AttributeOverride(name = "currency", column = @Column(name = "gross_currency", nullable = false))
             }
     )
     private Money grossAmount;
@@ -38,8 +38,8 @@ public class Settlement {
     @Embedded
     @AttributeOverrides(
             value = {
-                    @AttributeOverride(name = "amountUnit", column = @Column(name = "refund_amount", nullable = false)),
-                    @AttributeOverride(name = "amountValue", column = @Column(name = "refund_amount_value", nullable = false))
+                    @AttributeOverride(name = "amountUnit", column = @Column(name = "refund_amount", nullable = false )),
+                    @AttributeOverride(name = "currency", column = @Column(name = "refund_currency", nullable = false))
             }
     )
     private Money refundAmount;
@@ -48,7 +48,7 @@ public class Settlement {
     @AttributeOverrides(
             value = {
                     @AttributeOverride(name = "amountUnit", column = @Column(name = "fee_amount", nullable = false)),
-                    @AttributeOverride(name = "amountValue", column = @Column(name = "fee_amount_value", nullable = false))
+                    @AttributeOverride(name = "currency", column = @Column(name = "fee_amount_Currency", nullable = false))
             }
     )
     private Money feeAmount;
@@ -58,7 +58,7 @@ public class Settlement {
     @AttributeOverrides(
             value = {
                     @AttributeOverride(name = "amountUnit", column = @Column(name = "gst_amount", nullable = false)),
-                    @AttributeOverride(name = "amountValue", column = @Column(name = "gst_amount_value", nullable = false))
+                    @AttributeOverride(name = "currency", column = @Column(name = "gst_amount_currency", nullable = false))
             }
     )
     private Money gstAmount;
@@ -67,7 +67,7 @@ public class Settlement {
     @AttributeOverrides(
             value = {
                     @AttributeOverride(name = "amountUnit", column = @Column(name = "net_amount", nullable = false)),
-                    @AttributeOverride(name = "amountValue", column = @Column(name = "net_amount_value", nullable = false))
+                    @AttributeOverride(name = "currency", column = @Column(name = "net_Currency", nullable = false))
             }
     )
     private Money netAmount;

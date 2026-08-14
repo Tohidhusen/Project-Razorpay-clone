@@ -1,4 +1,4 @@
-package com.project.RazorpayClone.common.exception.enums;
+package com.project.RazorpayClone.common.enums;
 
 public enum RefundStatus {
     PENDING,

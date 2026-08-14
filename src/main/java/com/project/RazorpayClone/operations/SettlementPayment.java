@@ -12,5 +12,5 @@ public class SettlementPayment {
     @MapsId("settlementId")//map to the settlement id which is present in the settlement paymentid
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "settlement_id", nullable = false)
-    private Settlement settlementid;
+    private Settlement settlementId;
 }

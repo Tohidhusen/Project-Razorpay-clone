@@ -1,12 +1,13 @@
 package com.project.RazorpayClone.merchant.Entity;
 
-import com.project.RazorpayClone.common.exception.enums.Environment;
+import com.project.RazorpayClone.common.enums.Environment;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Builder
 @Entity
 @Getter
 @Setter
@@ -36,6 +37,7 @@ public class ApiKey {
     private Environment environment;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean enabled=true;
 
 

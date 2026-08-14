@@ -1,11 +1,8 @@
 package com.project.RazorpayClone.merchant.Entity;
 
-import com.project.RazorpayClone.common.exception.enums.UserRole;
+import com.project.RazorpayClone.common.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -14,6 +11,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name ="app_user" )
 public class AppUser {
     @Id

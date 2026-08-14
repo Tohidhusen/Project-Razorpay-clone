@@ -1,6 +1,6 @@
 package com.project.RazorpayClone.operations;
 
-import com.project.RazorpayClone.common.exception.enums.WebHookEventStatus;
+import com.project.RazorpayClone.common.enums.WebHookEventStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

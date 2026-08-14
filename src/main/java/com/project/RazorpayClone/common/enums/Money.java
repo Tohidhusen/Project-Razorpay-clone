@@ -1,4 +1,4 @@
-package com.project.RazorpayClone.common.exception.enums;
+package com.project.RazorpayClone.common.enums;
 
 import jakarta.persistence.Embeddable;
 
@@ -8,6 +8,8 @@ import jakarta.persistence.Embeddable;
 
 public class Money {
     private final int amountUnit;
+
+
     private final String currency;
     public Money(){
         this.amountUnit = 0;
