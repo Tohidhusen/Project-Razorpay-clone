@@ -1,5 +1,6 @@
 package com.project.RazorpayClone.payment.Entity;
 
+import com.project.RazorpayClone.common.BaseEntity;
 import com.project.RazorpayClone.common.enums.Money;
 import com.project.RazorpayClone.common.enums.PaymentMethod;
 import com.project.RazorpayClone.common.enums.PaymentStatus;
@@ -21,8 +22,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "payments")
-public class Payment {
+@Table(name = "payments",indexes = {
+        @Index(name = "idx_payments_merchant_id", columnList = "merchantId"),
+        @Index(name = "idx_payments_order_id", columnList = "order_id"),
+})
+public class Payment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;

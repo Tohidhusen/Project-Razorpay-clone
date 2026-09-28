@@ -1,5 +1,6 @@
 package com.project.RazorpayClone.payment.Entity;
 
+import com.project.RazorpayClone.common.BaseEntity;
 import com.project.RazorpayClone.common.enums.Money;
 import com.project.RazorpayClone.common.enums.RefundStatus;
 import jakarta.persistence.*;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "refund")
-public class Refund {
+public class Refund extends BaseEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;

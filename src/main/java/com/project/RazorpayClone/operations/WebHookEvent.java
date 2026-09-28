@@ -1,5 +1,6 @@
 package com.project.RazorpayClone.operations;
 
+import com.project.RazorpayClone.common.BaseEntity;
 import com.project.RazorpayClone.common.enums.WebHookEventStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "web_hook_events")
-public class WebHookEvent {
+public class WebHookEvent extends BaseEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;

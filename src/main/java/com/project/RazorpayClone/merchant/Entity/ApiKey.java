@@ -1,5 +1,6 @@
 package com.project.RazorpayClone.merchant.Entity;
 
+import com.project.RazorpayClone.common.BaseEntity;
 import com.project.RazorpayClone.common.enums.Environment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,8 +14,11 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "api_key")
-public class ApiKey {
+@Table(name = "api_key", indexes = {
+        @Index(name = "idx_api_key_merchant_env", columnList = "merchant_id,environment,enabled")
+}
+)
+public class ApiKey extends BaseEntity {
 
 
     @Id
@@ -30,6 +34,10 @@ public class ApiKey {
 
     @Column(length = 200,nullable = false)
     private String keySecretHash;
+
+
+    @Column(length = 200)
+    private String previouskeySecretHash;
 
 
     @Enumerated(EnumType.STRING)

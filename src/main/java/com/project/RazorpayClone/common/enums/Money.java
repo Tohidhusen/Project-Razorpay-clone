@@ -2,25 +2,22 @@ package com.project.RazorpayClone.common.enums;
 
 import jakarta.persistence.Embeddable;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 
 @Embeddable//used to add this class as a field in another entity class
-
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 public class Money {
-    private final int amountUnit;
 
 
-    private final String currency;
-    public Money(){
-        this.amountUnit = 0;
-        this.currency = "INR";
-    }
+    private  Integer amountUnit;
+    private String currency;
 
 
-public  Money(int amountUnit, String currency) {
-        this.amountUnit = amountUnit;
-        this.currency = currency;
-    }
 
     public Money add(Money other) {
         if (!this.currency.equals(other.currency)) {
