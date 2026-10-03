@@ -6,10 +6,7 @@ import com.project.RazorpayClone.common.enums.PaymentMethod;
 import com.project.RazorpayClone.common.enums.PaymentStatus;
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -22,6 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "payments",indexes = {
         @Index(name = "idx_payments_merchant_id", columnList = "merchantId"),
         @Index(name = "idx_payments_order_id", columnList = "order_id"),
@@ -46,7 +44,7 @@ public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private PaymentStatus Status;
+    private PaymentStatus status;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -59,6 +57,9 @@ public class Payment extends BaseEntity {
 
     @Column(length = 100)
     private String bankReference;
+
+    @Column(length = 100)
+    private String processorReference;
 
     @Column(length = 100)
     private String errorCode;
