@@ -4,10 +4,7 @@ import com.project.RazorpayClone.common.BaseEntity;
 import com.project.RazorpayClone.common.enums.PaymentEvent;
 import com.project.RazorpayClone.common.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "payment_transition_log",indexes = {
         @Index(name = "idx_payment_transition_log_payment_id", columnList = "payment_id")
 })

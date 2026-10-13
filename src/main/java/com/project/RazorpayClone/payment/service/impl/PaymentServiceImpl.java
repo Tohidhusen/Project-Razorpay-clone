@@ -1,6 +1,8 @@
 package com.project.RazorpayClone.payment.service.impl;
 
 import com.project.RazorpayClone.common.enums.OrderStatus;
+
+import com.project.RazorpayClone.common.enums.PaymentEvent;
 import com.project.RazorpayClone.common.enums.PaymentStatus;
 import com.project.RazorpayClone.common.exception.BusinessRuleViolationException;
 import com.project.RazorpayClone.common.exception.ResourceNotFoundException;
@@ -8,17 +10,20 @@ import com.project.RazorpayClone.payment.DTO.request.PaymentInitRequest;
 import com.project.RazorpayClone.payment.DTO.response.PaymentResponse;
 import com.project.RazorpayClone.payment.Entity.OrderRecord;
 import com.project.RazorpayClone.payment.Entity.Payment;
+
 import com.project.RazorpayClone.payment.gateway.DTO.PaymentRequest;
 import com.project.RazorpayClone.payment.gateway.DTO.PaymentResult;
 import com.project.RazorpayClone.payment.gateway.PaymentGatewayRouter;
 import com.project.RazorpayClone.payment.mapper.PaymentMapper;
 import com.project.RazorpayClone.payment.repository.OrderRepository;
 import com.project.RazorpayClone.payment.repository.PaymentRepository;
+import com.project.RazorpayClone.payment.service.PaymentTransitionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -29,6 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentGatewayRouter paymentGatewayRouter;
     private final PaymentMapper paymentMapper;
+    private final PaymentTransitionService paymentTransitionService;
     @Override
     @Transactional
     public PaymentResponse initiate(UUID merchantId,PaymentInitRequest request) {
@@ -58,9 +64,12 @@ public class PaymentServiceImpl implements PaymentService {
           switch (result){
               case PaymentResult.Pending pending-> payment.setProcessorReference(pending.paymentRegRefrence());
               case PaymentResult.Failure failure-> {
-                  payment.setStatus(PaymentStatus.FAILED);
+//                  payment.setStatus(PaymentStatus.FAILED);
+                  paymentTransitionService.apply(payment, PaymentEvent.AUTHORIZE_FAIL);
                   payment.setErrorCode(failure.errorCode());
                   payment.setErrorDescription(failure.errorDescription());
+              }
+              case PaymentResult.Success success -> {
               }
           }
 
@@ -68,5 +77,33 @@ public class PaymentServiceImpl implements PaymentService {
           orderRepository.save(order);
 
           return paymentMapper.toResponse(payment);
+    }
+
+    public PaymentResponse capture(UUID merchantId,UUID paymentId){
+        Payment payment= paymentRepository.findByIdAndMerchantId(paymentId,merchantId)
+                .orElseThrow(()->new ResourceNotFoundException("Payment not found",paymentId));
+
+//        payment.setStatus(PaymentStatus.CAPTURING);
+        paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_REQUEST);
+
+
+        PaymentResult paymentResult = paymentGatewayRouter.capture(payment.getMethod(),paymentId);
+
+        if(paymentResult instanceof PaymentResult.Success success){
+            paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_SUCCESS);
+            payment.setCapturedAt(LocalDateTime.now());
+            log.info("Payment captured successfully,paymentId{}",paymentId);
+
+        }else if(paymentResult instanceof PaymentResult.Failure failure){
+//            payment.setStatus(PaymentStatus.AUTHORIZED);
+            paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_FAIL);
+            payment.setErrorCode(failure.errorCode());
+            payment.setErrorDescription(failure.errorDescription());
+             log.warn("Payment capture failed,paymentId{}",payment);
+        }
+       payment= paymentRepository.save(payment);
+
+        return paymentMapper.toResponse(payment);
+
     }
 }

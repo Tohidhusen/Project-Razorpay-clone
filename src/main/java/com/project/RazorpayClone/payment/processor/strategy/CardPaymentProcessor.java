@@ -5,8 +5,9 @@ import com.project.RazorpayClone.payment.processor.dto.PaymentProcessorRequest;
 import com.project.RazorpayClone.payment.processor.dto.PaymentProcessorResponse;
 
 public class CardPaymentProcessor implements PaymentProcessor {
+
     @Override
-    public PaymentProcessorResponse charger(PaymentProcessorRequest request) {
+    public PaymentProcessorResponse charge(PaymentProcessorRequest request) {
         return null;
     }
 }
