@@ -79,7 +79,8 @@ public class PaymentServiceImpl implements PaymentService {
           return paymentMapper.toResponse(payment);
     }
 
-    public PaymentResponse capture(UUID merchantId,UUID paymentId){
+    @Override
+    public PaymentResponse capture(UUID merchantId, UUID paymentId) {
         Payment payment= paymentRepository.findByIdAndMerchantId(paymentId,merchantId)
                 .orElseThrow(()->new ResourceNotFoundException("Payment not found",paymentId));
 
@@ -99,11 +100,11 @@ public class PaymentServiceImpl implements PaymentService {
             paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_FAIL);
             payment.setErrorCode(failure.errorCode());
             payment.setErrorDescription(failure.errorDescription());
-             log.warn("Payment capture failed,paymentId{}",payment);
+            log.warn("Payment capture failed,paymentId{}",payment);
         }
-       payment= paymentRepository.save(payment);
+        payment= paymentRepository.save(payment);
 
         return paymentMapper.toResponse(payment);
-
     }
+
 }
