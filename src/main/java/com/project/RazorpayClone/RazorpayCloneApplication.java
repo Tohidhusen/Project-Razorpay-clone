@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableJpaAuditing
 @EnableScheduling
 @ConfigurationPropertiesScan
+@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 public class RazorpayCloneApplication {
 
 	public static void main(String[] args) {

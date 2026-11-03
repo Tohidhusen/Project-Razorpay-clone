@@ -1,5 +1,7 @@
 package com.project.RazorpayClone.payment.simulater;
 
+import com.project.RazorpayClone.common.utility.RandomUtill;
+import com.project.RazorpayClone.common.enums.ChaosMode;
 import com.project.RazorpayClone.common.enums.PaymentStatus;
 import com.project.RazorpayClone.payment.Entity.Payment;
 import com.project.RazorpayClone.payment.repository.PaymentRepository;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.apache.tomcat.util.net.SocketEvent.TIMEOUT;
 
 @Component
 @Slf4j
@@ -60,7 +64,7 @@ public class BankCallbackSimulater {
 
     private void resolve(Payment payment, boolean approve) {
         if (approve) {
-            String bankRef = "SIM_BANK_REF"+ RandomizerUtil.randomBase64(8);
+            String bankRef = "SIM_BANK_REF"+ RandomUtill.randombase64(8);
             paymentService.resolveAuthorization(payment.getId(), true, bankRef, null, null);
         } else {
             paymentService.resolveAuthorization(payment.getId(), false, null, "SIM_BANK_ERROR_CODE", "Simulated Bank Decline");
