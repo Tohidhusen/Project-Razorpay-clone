@@ -5,6 +5,7 @@ import com.project.RazorpayClone.common.utility.RandomUtill;
 import com.project.RazorpayClone.merchant.Entity.ApiKey;
 import com.project.RazorpayClone.merchant.Entity.Merchant;
 import com.project.RazorpayClone.merchant.Service.ApiKeyService;
+import com.project.RazorpayClone.merchant.cache.ApiKeyCache;
 import com.project.RazorpayClone.merchant.dto.request.CreateApiKeyRequest;
 import com.project.RazorpayClone.merchant.dto.response.ApiKeyCreateResponse;
 import com.project.RazorpayClone.merchant.dto.response.ApikeyResponse;
@@ -32,6 +33,7 @@ public class ApiKeyServiceimpl implements ApiKeyService {
     private final MerchantRepository merchantRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final ApikeyMapper apikeyMapper;
+    private final ApiKeyCache apiKeyCache;
 
 
     @Override
@@ -73,6 +75,7 @@ public class ApiKeyServiceimpl implements ApiKeyService {
         }
 
         apiKey.setEnabled(false);
+        apiKeyCache.evict(apiKey.getKeyId());
 
     }
 
@@ -92,6 +95,8 @@ public class ApiKeyServiceimpl implements ApiKeyService {
         apiKey.setGracePeriodExpireAt(LocalDateTime.now().plusHours(24));
 
         apiKey=apiKeyRepository.save(apiKey);
+
+        apiKeyCache.evict(apiKey.getKeyId());
 
         return new ApiKeyCreateResponse(apiKey.getId(),apiKey.getKeyId(),newrawsecret,apiKey.getEnvironment());
 

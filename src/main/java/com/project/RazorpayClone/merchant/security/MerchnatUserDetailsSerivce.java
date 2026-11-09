@@ -20,4 +20,4 @@ public class MerchnatUserDetailsSerivce implements UserDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", email));
     }
     }
-}
+

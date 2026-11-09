@@ -1,6 +1,6 @@
 package com.project.RazorpayClone.vault.repository;
 
-import com.project.RazorpayClone.vault.VaultCard;
+import com.project.RazorpayClone.vault.entity.VaultCard;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

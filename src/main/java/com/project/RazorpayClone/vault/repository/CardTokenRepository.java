@@ -1,6 +1,6 @@
 package com.project.RazorpayClone.vault.repository;
 
-import com.project.RazorpayClone.vault.CardToken;
+import com.project.RazorpayClone.vault.entity.CardToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

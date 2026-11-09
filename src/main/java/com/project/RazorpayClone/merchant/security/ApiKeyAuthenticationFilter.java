@@ -1,6 +1,11 @@
 package com.project.RazorpayClone.merchant.security;
 
+import com.project.RazorpayClone.common.exception.RateLimitException;
+import com.project.RazorpayClone.common.ratelimit.RateLimitResult;
+import com.project.RazorpayClone.common.ratelimit.RateLimiter;
 import com.project.RazorpayClone.merchant.Entity.ApiKey;
+import com.project.RazorpayClone.merchant.cache.ApiKeyCache;
+import com.project.RazorpayClone.merchant.cache.ApiKeyCacheEntry;
 import com.project.RazorpayClone.merchant.repository.ApiKeyRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,17 +14,27 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
+
 import java.util.Base64;
+import java.util.List;
+
+
+
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +47,11 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     private final BCryptPasswordEncoder BCRYPT = new BCryptPasswordEncoder();
     private final MerchantContext merchantContext;
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final ApiKeyCache apiKeyCache;
+    private final RateLimiter rateLimiter;
+
+    @Value("${app.rate-limit.use-case.api-key.requests-per-minute:60}")
+    private Integer requestsPerMinute;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -47,7 +67,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 //        Authorization: Basic key_asdlfjaosduf:secret_asdflauouadf
 //        Authorization: Basic ASDFUAOSJDFLAKSJDFA89SDUFLIJalsdjflakjsdflk==
 
-            String[] credentials = decode(header);
+            String[] credentials = decodeCredentials(header);
             if (credentials == null) {
                 throw new BadRequestException("Malformed API Key Header");
             }
@@ -57,17 +77,28 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
 
 
-//            ApiKey apiKey = apiKeyRepository.findByKeyId(keyId)
-//                    .orElseThrow(() -> new BadRequestException("Invalid or missing API Key"));
+            ApiKeyCacheEntry apiKeyEntry = apiKeyCache.get(keyId)
+                    .orElseGet(() -> loadAndCache(keyId));
 
-            if
 
+
+            if (apiKeyEntry == null || !apiKeyEntry.enabled() || !secretMatches(rawSecret, apiKeyEntry)) {
+                throw new BadRequestException("Invalid or missing API Key");
+            }
+
+            RateLimitResult rateLimitResult=rateLimiter.check("apiKey:"+keyId,requestsPerMinute,60);
+            if(!rateLimitResult.isAllowed()){
+                log.warn("Too many requests keyId={}", keyId);
+                throw new RateLimitException("Too many requests",rateLimitResult.retryAfterSeconds());
+            }
+            response.setHeader("X-RateLimit-Limit", String.valueOf(requestsPerMinute));
+            response.setHeader("X-RateLimit-Remaining", String.valueOf(rateLimitResult.remaining()));
             var auth = new UsernamePasswordAuthenticationToken(keyId, null,
                     List.of(new SimpleGrantedAuthority("API_KEY_ROLE"))
             );
 
             SecurityContextHolder.getContext().setAuthentication(auth);
-            merchantContext.setMerchantId(apiKey.merchantId());
+            merchantContext.setMerchantId(apiKeyEntry.merchantId());
             merchantContext.setKeyId(apiKeyEntry.keyId());
 
             filterChain.doFilter(request, response);
@@ -78,21 +109,40 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
 
     }
-    private boolean secretMatches(String rawSecret, ApiKey apiKey) {
-        if (BCRYPT.matches(rawSecret, apiKey.getKeySecretHash())) {
+
+    private ApiKeyCacheEntry loadAndCache(String keyId) {
+
+        ApiKey apiKey = apiKeyRepository.findByKeyId(keyId).orElse(null);
+        if (apiKey == null) return null;
+        ApiKeyCacheEntry apiKeyCacheEntry = new ApiKeyCacheEntry(
+                apiKey.getKeyId(),
+                apiKey.getKeySecretHash(),
+                apiKey.getPreviouskeySecretHash(),
+                apiKey.getGracePeriodExpireAt(),
+                apiKey.getMerchant().getId(),
+                apiKey.getEnvironment(),
+                apiKey.getEnabled()
+        );
+        apiKeyCache.put(keyId, apiKeyCacheEntry);
+        return apiKeyCacheEntry;
+    }
+
+    private boolean secretMatches(String rawSecret, ApiKeyCacheEntry apiKey) {
+        if (BCRYPT.matches(rawSecret, apiKey.keySecretHash())) {
             return true;
         }
-        return apiKey.isInGraceperiod()
-                && apiKey.getPreviouskeySecretHash() != null
-                && BCRYPT.matches(rawSecret, apiKey.getPreviouskeySecretHash());
+        return apiKey.isInGracePeriod()
+                && apiKey.previousKeySecretHash() != null
+                && BCRYPT.matches(rawSecret, apiKey.previousKeySecretHash());
     }
-    private String[] decode(String header) {
-        String encoded = header.substring(BASIC_PREFIX.length());
-        String decoded = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+        private String[] decodeCredentials(String header) {
+            String encoded = header.substring(BASIC_PREFIX.length());
+            String decoded = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
 
-        int colon = decoded.indexOf(":");
-        if (colon < 1) return null;
+            int colon = decoded.indexOf(":");
+            if (colon < 1) return null;
 
-        return new String[]{decoded.substring(0, colon), decoded.substring(colon+1)};
-    }
+            return new String[]{decoded.substring(0, colon), decoded.substring(colon+1)};
+        }
+
 }

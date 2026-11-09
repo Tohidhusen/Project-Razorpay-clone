@@ -38,7 +38,6 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(idempotencyFilter, JwtAuthenticationFilter.class)
                 .build();
     }
     @Bean
@@ -53,7 +52,7 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(idempotencyFilter, ApiKeyAuthenticationFilter.class)
+
                 .build();
     }
 
@@ -64,7 +63,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(MerchantUserDetailsService userDetailsService,
+    public AuthenticationManager authenticationManager(MerchnatUserDetailsSerivce userDetailsService,
                                                        PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);

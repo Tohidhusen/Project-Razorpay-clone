@@ -1,4 +1,4 @@
-package com.project.RazorpayClone.vault;
+package com.project.RazorpayClone.vault.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
